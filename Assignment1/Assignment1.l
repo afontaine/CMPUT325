@@ -43,9 +43,19 @@
 	  (remove-duplicate (cdr L))
 	  (cons (car L) (remove-duplicate (cdr L))))))
 
+;Checks to see if a is somewhere within L. Used in questions 3 and 4.
 (defun contains (a L)
   (if (null (cdr L))
 	(eq a (car L))
 	(if (eq a (car L))
 	  (eq a (car L))
 	  (contains a (cdr L)))))
+
+;Question 4
+;Count the number of unique atoms in the list by iterating over the list once.
+(defun my-count (L)
+  (if (null L)
+	0
+	(if (contains (car L) (cdr L))
+	  (my-count (cdr L))
+	  (+ 1 (my-count (cdr L))))))
