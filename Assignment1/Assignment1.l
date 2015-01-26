@@ -33,3 +33,19 @@
 
 (defun eq-pair (L)
   (eq (car L) (cadr L)))
+
+;QUESTION 3
+;Takes a list of atoms and removes repeated atoms from the list.
+(defun remove-duplicate (L)
+  (if (null (cdr L))
+	L
+	(if (contains (car L) (cdr L))
+	  (remove-duplicate (cdr L))
+	  (cons (car L) (remove-duplicate (cdr L))))))
+
+(defun contains (a L)
+  (if (null (cdr L))
+	(eq a (car L))
+	(if (eq a (car L))
+	  (eq a (car L))
+	  (contains a (cdr L)))))
