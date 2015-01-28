@@ -74,3 +74,53 @@
 	(list)
 	(cons (append (car L) (list X)) (combo (cdr L) X))))
 
+;Question 6
+;A function that finds one best or worst grade for a specific student across all
+;input to the function
+(defun findOne (name isBest L)
+  (cond ((string= 'worst isBest)
+		(car (sort (findAll name L) 'sort-grade-negative)))
+		((string= 'best isBest)
+		(car (sort (findAll name L) 'sort-grade-positive)))))
+
+;Maps letter grades to numeric values for easier comparision. Grades listed are
+;those in the UAlberta 2014-2015 Calendar
+(defun grade-map (a)
+  (cond
+	((string= a 'A+) 11)
+	((string= a 'A) 10)
+	((string= a 'A-) 9)
+	((string= a 'B+) 8)
+	((string= a 'B) 7)
+	((string= a 'B-) 6)
+	((string= a 'C+) 5)
+	((string= a 'C) 4)
+	((string= a 'C-) 3)
+	((string= a 'D+) 2)
+	((string= a 'D) 1)
+	((string= a 'F) 0)))
+
+;Sorts grades in descending order (best first)
+(defun sort-grade-positive (A B)
+  (> (grade-map (cadr A)) (grade-map (cadr B))))
+
+;Sorts grades in ascending order (worst first)
+(defun sort-grade-negative (A B)
+  (< (grade-map (cadr A)) (grade-map (cadr B))))
+
+;This function finds all courses based off a given name and returns the results
+;sorted by course number.
+(defun findAll (name L)
+  (sort (findName name L ()) 'sort-course-number))
+
+;This function returns course-grade tuples for a given name
+(defun findName (name L X)
+  (cond
+	((null L) nil)
+	((string= (caar L) name)
+	  (append X (list (cdar L)) (findName name (cdr L) X)))
+	(T (findName name (cdr L) X))))
+
+;This function is the criteria used to sort course names
+(defun sort-course-number (A B)
+  (string-lessp (car A) (car B)))
