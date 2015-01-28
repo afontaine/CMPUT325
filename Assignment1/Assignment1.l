@@ -65,9 +65,8 @@
 (defun power-set (L)
   (if (null L)
 	(list (list))
-	(remove-duplicate
-	  (append (power-set (cdr L)) (list (list (car L)))
-			 (combo (power-set (cdr L)) (car L))))))
+	  (append (power-set (cdr L))
+			 (combo (power-set (cdr L)) (car L)))))
 
 ;This function takes an atom X and appends it to every element in the list L
 (defun combo (L X)
