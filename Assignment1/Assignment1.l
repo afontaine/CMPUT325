@@ -45,11 +45,12 @@
 
 ;Checks to see if a is somewhere within L. Used in questions 3 and 4.
 (defun contains (a L)
-  (if (null (cdr L))
-  (equal a (car L))
-  (if (equal a (car L))
-    (equal a (car L))
-    (contains a (cdr L)))))
+  (cond
+	((null L) nil)
+    ((null (cdr L))
+     (equal a (car L)))
+    ((equal a (car L)) T)
+    (T (contains a (cdr L)))))
 
 ;Question 4
 ;Count the number of unique atoms in the list by iterating over the list once.
@@ -124,3 +125,26 @@
 ;This function is the criteria used to sort course names
 (defun sort-course-number (A B)
   (string-lessp (car A) (car B)))
+
+;Question 7
+;Takes an atom and a list of tuples and returns a list of the atoms that can
+;"reach" the given atom from the list of tuples.
+(defun reached (x L))
+
+(defun reaches (x L R)
+  (cond
+	((null L) R)
+	((and (equal x (caar L))
+		  (equal x (cadar L)))
+	 (reaches x (cdr L) R))
+	((and (equal x (caar L))
+		  (not (contains
+				 (cadar L)
+				 (reaches x (cdr L) R))))
+	 (append R (list (cadar L)) (reaches x (cdr L) R)))
+	((and (equal x (cadar L))
+		  (not (contains
+				 (caar L)
+				 (reaches x (cdr L) R))))
+	 (append R (list (cadar L)) (reaches x (cdr L) R)))
+	(T (reaches x (cdr L) R))))
