@@ -134,11 +134,16 @@
 	((R (reaches x L '())))
 	 (remove-duplicate (remove-atom x (reaching x L R R)))))
 
+;This function takes an atom, a list of tuples, a list of nodes connected to the
+;atom, and a list of nodes that are connected to nodes in the list R and
+;computes a single list of all nodes reached by the atom x.
 (defun reaching (x L R V)
   (cond
 	((null R) V)
 	(T (reaching x L (cdr R) (append V (reaches (car R) L R))))))
 
+;This function takes an atom, a list of tuples, and a list of nodes that
+;the atom can reach, and appends new atoms to the list R
 (defun reaches (x L R)
   (cond
 	((null L) R)
@@ -157,6 +162,8 @@
 	 (append R (list (cadar L)) (reaches x (cdr L) R)))
 	(T (reaches x (cdr L) R))))
 
+;This function takes an atom and a list and removes instances of the atom from
+;the list.
 (defun remove-atom (x L)
   (if (null L)
 	L
@@ -164,27 +171,35 @@
 	  (remove-atom x (cdr L))
 	  (cons (car L) (remove-atom x (cdr L))))))
 
+;Rank taks list of sites and a list of tuples and returns the original list of
+;sites ordered by thier rank, determined by the list L. Rank is the number of
+;of sites that link to the atom.
 (defun rank (S L)
-  (flatten-ranks (sort-ranks (get-ranks S L))))
+  (flatten-ranks (sort (get-ranks S L) 'rank-order)))
 
-
+;This function takes a list of tuples with an atom and the number of links to
+;the site and returns a flattened list of the atoms in the original order.
 (defun flatten-ranks (S)
   (if (null S)
 	nil
 	(append (list (caar S)) (flatten-ranks (cdr S)))))
 
-(defun sort-ranks (S)
-  (sort S 'rank-order))
-
+;This function is used for sorting the list of tuples containing a site and
+;the number of links pointing to that site.
 (defun rank-order (A B)
   (> (cadr A) (cadr B)))
 
+;This function takes a list of atoms and a list of tuples representing links,
+;and constructs a list of tuples containing the atoms in S and the number of
+;links to that particular atom.
 (defun get-ranks (S L)
   (cond
 	((null S) nil)
 	(T (append (get-ranks (cdr S) L)
 			   (list (list (car S) (count-link (car S) L)))))))
 
+;This function takes an atom and a list of tuples representing links and returns
+;the number of links in the list L that point to the atom x
 (defun count-link (x L)
   (cond
 	((null L) 0)
