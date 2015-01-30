@@ -66,7 +66,7 @@
 (defun power-set (L)
   (if (null L)
 	(list (list))
-	  (append (power-set (cdr L))
+    (append (power-set (cdr L))
 			 (combo (power-set (cdr L)) (car L)))))
 
 ;This function takes an atom X and appends it to every element in the list L
@@ -129,7 +129,15 @@
 ;Question 7
 ;Takes an atom and a list of tuples and returns a list of the atoms that can
 ;"reach" the given atom from the list of tuples.
-(defun reached (x L))
+(defun reached (x L)
+  (let
+	((R (reaches x L '())))
+	 (remove-duplicate (remove-atom x (reaching x L R R)))))
+
+(defun reaching (x L R V)
+  (cond
+	((null R) V)
+	(T (reaching x L (cdr R) (append V (reaches (car R) L R))))))
 
 (defun reaches (x L R)
   (cond
@@ -148,3 +156,38 @@
 				 (reaches x (cdr L) R))))
 	 (append R (list (cadar L)) (reaches x (cdr L) R)))
 	(T (reaches x (cdr L) R))))
+
+(defun remove-atom (x L)
+  (if (null L)
+	L
+	(if (equal x (car L))
+	  (remove-atom x (cdr L))
+	  (cons (car L) (remove-atom x (cdr L))))))
+
+(defun rank (S L)
+  (flatten-ranks (sort-ranks (get-ranks S L))))
+
+
+(defun flatten-ranks (S)
+  (if (null S)
+	nil
+	(append (list (caar S)) (flatten-ranks (cdr S)))))
+
+(defun sort-ranks (S)
+  (sort S 'rank-order))
+
+(defun rank-order (A B)
+  (> (cadr A) (cadr B)))
+
+(defun get-ranks (S L)
+  (cond
+	((null S) nil)
+	(T (append (get-ranks (cdr S) L)
+			   (list (list (car S) (count-link (car S) L)))))))
+
+(defun count-link (x L)
+  (cond
+	((null L) 0)
+	((and (equal (cadar L) x) (not (equal (caar L) x)))
+	 (+ 1 (count-link x (cdr L))))
+	(T (count-link x (cdr L)))))
