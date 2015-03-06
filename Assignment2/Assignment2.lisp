@@ -8,7 +8,7 @@
   (cond
 	((atom E)
 	 (cond
-	   ((contains-function E C) (find-args E C))
+	   ((contains-symbol E C) (interp-closure (find-args E C) C))
 	   (T E)))
 	(t
 	  (let ((f (car E)) (arg (cdr E)))
@@ -53,10 +53,10 @@
 		  ((eq f 'if)
 		   (if (interp-closure (car arg) C) (interp-closure (cadr arg) C)
 			 (interp-closure (caddr arg) C)))
-		  ((contains-function f C)
+		  ((contains-symbol f C)
 		   (interp-closure (find-func f C)
 						   (append (map-args (find-args f C) arg C) C)))
-		  (T E))))))
+		  (T (cons (interp-closure (car E) C) (interp-closure (cdr E) C))))))))
 
 (defun get-args (f)
   (cond
@@ -69,11 +69,11 @@
 	((eq (car f) '=) (cadr f))
 	(T (get-func (cdr f)))))
 
-(defun contains-function (x L)
+(defun contains-symbol (x L)
   (cond
 	((null L) nil)
 	((eq x (caar L)) T)
-	(T (contains-function x (cdr L)))))
+	(T (contains-symbol x (cdr L)))))
 
 (defun find-args (f L)
   (cond
