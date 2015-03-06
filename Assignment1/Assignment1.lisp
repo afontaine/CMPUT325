@@ -46,7 +46,7 @@
 ;Checks to see if a is somewhere within L. Used in questions 3 and 4.
 (defun contains (a L)
   (cond
-	((null L) nil)
+  ((null L) nil)
     ((null (cdr L))
      (equal a (car L)))
     ((equal a (car L)) T)
@@ -65,41 +65,41 @@
 ;This takes in a list and returns the powerset of that list.
 (defun power-set (L)
   (if (null L)
-	(list (list))
+  (list (list))
     (append (power-set (cdr L))
-			 (combo (power-set (cdr L)) (car L)))))
+       (combo (power-set (cdr L)) (car L)))))
 
 ;This function takes an atom X and appends it to every element in the list L
 (defun combo (L X)
   (if (null L)
-	(list)
-	(cons (append (car L) (list X)) (combo (cdr L) X))))
+  (list)
+  (cons (append (car L) (list X)) (combo (cdr L) X))))
 
 ;Question 6
 ;A function that finds one best or worst grade for a specific student across all
 ;input to the function
 (defun findOne (name isBest L)
   (cond ((string= 'worst isBest)
-		(car (sort (findAll name L) 'sort-grade-negative)))
-		((string= 'best isBest)
-		(car (sort (findAll name L) 'sort-grade-positive)))))
+    (car (sort (findAll name L) 'sort-grade-negative)))
+    ((string= 'best isBest)
+    (car (sort (findAll name L) 'sort-grade-positive)))))
 
 ;Maps letter grades to numeric values for easier comparision. Grades listed are
 ;those in the UAlberta 2014-2015 Calendar
 (defun grade-map (a)
   (cond
-	((string= a 'A+) 11)
-	((string= a 'A) 10)
-	((string= a 'A-) 9)
-	((string= a 'B+) 8)
-	((string= a 'B) 7)
-	((string= a 'B-) 6)
-	((string= a 'C+) 5)
-	((string= a 'C) 4)
-	((string= a 'C-) 3)
-	((string= a 'D+) 2)
-	((string= a 'D) 1)
-	((string= a 'F) 0)))
+  ((string= a 'A+) 11)
+  ((string= a 'A) 10)
+  ((string= a 'A-) 9)
+  ((string= a 'B+) 8)
+  ((string= a 'B) 7)
+  ((string= a 'B-) 6)
+  ((string= a 'C+) 5)
+  ((string= a 'C) 4)
+  ((string= a 'C-) 3)
+  ((string= a 'D+) 2)
+  ((string= a 'D) 1)
+  ((string= a 'F) 0)))
 
 ;Sorts grades in descending order (best first)
 (defun sort-grade-positive (A B)
@@ -117,10 +117,10 @@
 ;This function returns course-grade tuples for a given name
 (defun findName (name L X)
   (cond
-	((null L) nil)
-	((string= (caar L) name)
-	  (append X (list (cdar L)) (findName name (cdr L) X)))
-	(T (findName name (cdr L) X))))
+  ((null L) nil)
+  ((string= (caar L) name)
+    (append X (list (cdar L)) (findName name (cdr L) X)))
+  (T (findName name (cdr L) X))))
 
 ;This function is the criteria used to sort course names
 (defun sort-course-number (A B)
@@ -131,45 +131,45 @@
 ;"reach" the given atom from the list of tuples.
 (defun reached (x L)
   (let
-	((R (reaches x L '())))
-	 (remove-duplicate (remove-atom x (reaching x L R R)))))
+  ((R (reaches x L '())))
+   (remove-duplicate (remove-atom x (reaching x L R R)))))
 
 ;This function takes an atom, a list of tuples, a list of nodes connected to the
 ;atom, and a list of nodes that are connected to nodes in the list R and
 ;computes a single list of all nodes reached by the atom x.
 (defun reaching (x L R V)
   (cond
-	((null R) V)
-	(T (reaching x L (cdr R) (append V (reaches (car R) L R))))))
+  ((null R) V)
+  (T (reaching x L (cdr R) (append V (reaches (car R) L R))))))
 
 ;This function takes an atom, a list of tuples, and a list of nodes that
 ;the atom can reach, and appends new atoms to the list R
 (defun reaches (x L R)
   (cond
-	((null L) R)
-	((and (equal x (caar L))
-		  (equal x (cadar L)))
-	 (reaches x (cdr L) R))
-	((and (equal x (caar L))
-		  (not (contains
-				 (cadar L)
-				 (reaches x (cdr L) R))))
-	 (append R (list (cadar L)) (reaches x (cdr L) R)))
-	((and (equal x (cadar L))
-		  (not (contains
-				 (caar L)
-				 (reaches x (cdr L) R))))
-	 (append R (list (cadar L)) (reaches x (cdr L) R)))
-	(T (reaches x (cdr L) R))))
+  ((null L) R)
+  ((and (equal x (caar L))
+      (equal x (cadar L)))
+   (reaches x (cdr L) R))
+  ((and (equal x (caar L))
+      (not (contains
+         (cadar L)
+         (reaches x (cdr L) R))))
+   (append R (list (cadar L)) (reaches x (cdr L) R)))
+  ((and (equal x (cadar L))
+      (not (contains
+         (caar L)
+         (reaches x (cdr L) R))))
+   (append R (list (cadar L)) (reaches x (cdr L) R)))
+  (T (reaches x (cdr L) R))))
 
 ;This function takes an atom and a list and removes instances of the atom from
 ;the list.
 (defun remove-atom (x L)
   (if (null L)
-	L
-	(if (equal x (car L))
-	  (remove-atom x (cdr L))
-	  (cons (car L) (remove-atom x (cdr L))))))
+  L
+  (if (equal x (car L))
+    (remove-atom x (cdr L))
+    (cons (car L) (remove-atom x (cdr L))))))
 
 ;Rank taks list of sites and a list of tuples and returns the original list of
 ;sites ordered by thier rank, determined by the list L. Rank is the number of
@@ -181,8 +181,8 @@
 ;the site and returns a flattened list of the atoms in the original order.
 (defun flatten-ranks (S)
   (if (null S)
-	nil
-	(append (list (caar S)) (flatten-ranks (cdr S)))))
+  nil
+  (append (list (caar S)) (flatten-ranks (cdr S)))))
 
 ;This function is used for sorting the list of tuples containing a site and
 ;the number of links pointing to that site.
@@ -194,15 +194,15 @@
 ;links to that particular atom.
 (defun get-ranks (S L)
   (cond
-	((null S) nil)
-	(T (append (get-ranks (cdr S) L)
-			   (list (list (car S) (count-link (car S) L)))))))
+  ((null S) nil)
+  (T (append (get-ranks (cdr S) L)
+         (list (list (car S) (count-link (car S) L)))))))
 
 ;This function takes an atom and a list of tuples representing links and returns
 ;the number of links in the list L that point to the atom x
 (defun count-link (x L)
   (cond
-	((null L) 0)
-	((and (equal (cadar L) x) (not (equal (caar L) x)))
-	 (+ 1 (count-link x (cdr L))))
-	(T (count-link x (cdr L)))))
+  ((null L) 0)
+  ((and (equal (cadar L) x) (not (equal (caar L) x)))
+   (+ 1 (count-link x (cdr L))))
+  (T (count-link x (cdr L)))))
