@@ -159,3 +159,31 @@ count([A|L], N, S, V) :-
 	count(L, O, X, V),
 	!,
 	append(M, O, N).
+
+% Convert takes in a list and returns a list with the following rules:
+% 1. Anything between matching q's is left as is.
+% 2. Any e's outside of matching q's are removed.
+% 3. Anything else outside of matching q's become c's.
+convert([], [], _).
+convert([q|L], [q|R], no) :-
+	member(q, L),
+	!,
+	convert(L, R, yes).
+convert([q|L], [q|R], no) :-
+	!,
+	convert(L, R, no).
+convert([e|L], R, no) :-
+	!,
+	convert(L, R, no).
+convert([A|L], [c|R], no) :-
+	!,
+	convert(L, R, no).
+convert([q|L], [q|R], yes) :-
+	!,
+	convert(L, R, no).
+convert([A|L], [A|R], yes) :-
+	!,
+	convert(L, R, yes).
+
+convert(L, R) :-
+	convert(L, R, no).
