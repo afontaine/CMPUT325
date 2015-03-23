@@ -157,33 +157,64 @@ count([A|L], N, S, V) :-
 	!,
 	append(H, S, X),
 	count(L, O, X, V),
-	!,
 	append(M, O, N).
+
+countAll(L, R) :-
+	flatten(L, F),
+	count(F, N, [], S),
+	merge_sort(N, R).
+
+% Merge sort and halve were found here:
+% http://kti.mff.cuni.cz/~bartak/prolog/sorting.html#merge
+halve(L, A, B) :- hv(L, [], A, B).
+hv(L, L, [], L). % for lists of even length
+hv(L, [_|L], [], L).
+hv([H|T], Acc, [H|L], B) :- hv(T, [_|Acc], L, B).
+
+merge_sort([], []).
+merge_sort([X], [X]).
+merge_sort(L, S) :-
+	L = [_, _ | _],
+	halve(L, L1, L2),
+	merge_sort(L1, S1),
+	merge_sort(L2, S2),
+	merge(S1, S2, S).
+merge([], L, L).
+merge(L, [], L) :- L \= [].
+merge([[A1, F1]|T1], [[A2, F2]|T2], [[A1, F1]|T]) :-
+	F1 >= F2,
+	!,
+	merge(T1, [[A2, F2]|T2], T).
+merge([[A1, F1]|T1], [[A2, F2]|T2], [[A2, F2]|T]) :-
+	F1 =< F2,
+	!,
+	merge([[A1, F1]|T1], T2, T).
 
 % Convert takes in a list and returns a list with the following rules:
 % 1. Anything between matching q's is left as is.
-% 2. Any e's outside of matching q's are removed.
-% 3. Anything else outside of matching q's become c's.
+% 2. q's are always left as-is.
+% 3. Any e's outside of matching q's are removed.
+% 4. Anything else outside of matching q's become c's.
 convert([], [], _).
-convert([q|L], [q|R], no) :-
+convert([q|L], [q|R], off) :-
 	member(q, L),
 	!,
-	convert(L, R, yes).
-convert([q|L], [q|R], no) :-
+	convert(L, R, on).
+convert([q|L], [q|R], off) :-
 	!,
-	convert(L, R, no).
-convert([e|L], R, no) :-
+	convert(L, R, off).
+convert([e|L], R, off) :-
 	!,
-	convert(L, R, no).
-convert([A|L], [c|R], no) :-
+	convert(L, R, off).
+convert([A|L], [c|R], off) :-
 	!,
-	convert(L, R, no).
-convert([q|L], [q|R], yes) :-
+	convert(L, R, off).
+convert([q|L], [q|R], on) :-
 	!,
-	convert(L, R, no).
-convert([A|L], [A|R], yes) :-
+	convert(L, R, off).
+convert([A|L], [A|R], on) :-
 	!,
-	convert(L, R, yes).
+	convert(L, R, on).
 
 convert(L, R) :-
-	convert(L, R, no).
+	convert(L, R, off).
