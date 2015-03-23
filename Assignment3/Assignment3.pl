@@ -40,6 +40,7 @@ rmAllDup([_|L], R, S) :-
 rmAllDup(L, R) :-
 	rmAllDup(L, R, []).
 
+% Takes in a list and returns it flattened to one level.
 flatten([], []).
 flatten([A|L], [A|R]) :-
 	atomic(A), flatten(L, R).
