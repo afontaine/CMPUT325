@@ -32,13 +32,10 @@ rmAllDup([A|L], [X|R], S) :-
 	append([], S, T),
 	rmAllDup(A, X, T),
 	flatten(X, Y),
-	append(S, Y, Z),
-	rmAllDup(L, R, Z).
+	rmAllDup(L, R, [S|Y]).
 rmAllDup([A|L], [A|R], S) :-
-	\+ member(A, S),
-	!,
-	append(S, [A], T),
-	rmAllDup(L, R, T).
+	\+ member(A, S), !,
+	rmAllDup(L, R, [A|S]).
 rmAllDup([_|L], R, S) :-
 	rmAllDup(L, R, S).
 rmAllDup(L, R) :-
@@ -122,3 +119,43 @@ generate([F|L], smallest, N) :-
 	generate(L, smallest, O),
 	!,
 	N = O.
+
+% countAll takes a (possibly nested) list and returns an ordered list of pairs,
+% with the atoms of the list paired with their frequency in the original list in
+% descending frequency.
+occurance(A, [], N, F) :-
+	N = [A, F], !.
+occurance(A, [B|L], N, F) :-
+	atomic(B),
+	A == B,
+	F1 is F + 1,
+	!,
+	occurance(A, L, N, F1).
+occurance(A, [B|L], N, F) :-
+	atomic(B),
+	!,
+	occurance(A, L, N, F).
+occurance(A, [B|L], N, F) :-
+	occurance(A, B, [C, D], 0),
+	FM is F + D,
+	!,
+	occurance(A, L, N, FM).
+
+count([], [], S, S) :- !.
+count([A|L], N, S, V) :-
+	atomic(A),
+	member(A, S),
+	!,
+	count(L, N, S, V).
+count([A|L], [X|N], S, V) :-
+	atomic(A),
+	!,
+	occurance(A, L, X, 1),
+	count(L, N, [A|S], V).
+count([A|L], N, S, V) :-
+	count(A, M, S, H),
+	!,
+	append(H, S, X),
+	count(L, O, X, V),
+	!,
+	append(M, O, N).
