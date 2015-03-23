@@ -21,7 +21,7 @@ rmDup([A|L], R) :-
 	member(A, L),
 	!,
 	rmDup(L, R).
-rmDup([A|L], [ttR]) :-
+rmDup([A|L], [A|R]) :-
 	rmDup(L, R).
 
 % rmAllDup removes duplicates from a list with nested lists.
@@ -110,12 +110,12 @@ generate([F|L], smallest, N) :-
 	!,
 	N = M.
 generate([F|L], largest, N) :-
-	generate(F, largest, M),
+	generate(F, largest, _),
 	generate(L, largest, O),
 	!,
 	N = O.
 generate([F|L], smallest, N) :-
-	generate(F, smallest, M),
+	generate(F, smallest, _),
 	generate(L, smallest, O),
 	!,
 	N = O.
@@ -124,24 +124,24 @@ generate([F|L], smallest, N) :-
 % with the atoms of the list paired with their frequency in the original list in
 % descending frequency.
 occurance(A, [], N, F) :-
-	N = [A, F], !.
+	N = [A, F].
 occurance(A, [B|L], N, F) :-
 	atomic(B),
 	A == B,
-	F1 is F + 1,
 	!,
+	F1 is F + 1,
 	occurance(A, L, N, F1).
 occurance(A, [B|L], N, F) :-
 	atomic(B),
 	!,
 	occurance(A, L, N, F).
 occurance(A, [B|L], N, F) :-
-	occurance(A, B, [C, D], 0),
-	FM is F + D,
+	occurance(A, B, [_, D], 0),
 	!,
+	FM is F + D,
 	occurance(A, L, N, FM).
 
-count([], [], S, S) :- !.
+count([], [], S, S).
 count([A|L], N, S, V) :-
 	atomic(A),
 	member(A, S),
@@ -161,7 +161,7 @@ count([A|L], N, S, V) :-
 
 countAll(L, R) :-
 	flatten(L, F),
-	count(F, N, [], S),
+	count(F, N, [], _),
 	merge_sort(N, R).
 
 % Merge sort and halve were found here:
@@ -169,18 +169,19 @@ countAll(L, R) :-
 halve(L, A, B) :- hv(L, [], A, B).
 hv(L, L, [], L). % for lists of even length
 hv(L, [_|L], [], L).
-hv([H|T], Acc, [H|L], B) :- hv(T, [_|Acc], L, B).
+hv([H|T], Acc, [H|L], B) :- !, hv(T, [_|Acc], L, B).
 
 merge_sort([], []).
 merge_sort([X], [X]).
 merge_sort(L, S) :-
 	L = [_, _ | _],
 	halve(L, L1, L2),
+	!,
 	merge_sort(L1, S1),
 	merge_sort(L2, S2),
 	merge(S1, S2, S).
 merge([], L, L).
-merge(L, [], L) :- L \= [].
+merge(L, [], L) :- !, L \= [].
 merge([[A1, F1]|T1], [[A2, F2]|T2], [[A1, F1]|T]) :-
 	F1 >= F2,
 	!,
@@ -206,7 +207,7 @@ convert([q|L], [q|R], off) :-
 convert([e|L], R, off) :-
 	!,
 	convert(L, R, off).
-convert([A|L], [c|R], off) :-
+convert([_|L], [c|R], off) :-
 	!,
 	convert(L, R, off).
 convert([q|L], [q|R], on) :-
