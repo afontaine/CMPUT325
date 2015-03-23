@@ -21,7 +21,7 @@ rmDup([A|L], R) :-
 	member(A, L),
 	!,
 	rmDup(L, R).
-rmDup([A|L], [A|R]) :-
+rmDup([A|L], [ttR]) :-
 	rmDup(L, R).
 
 % rmAllDup removes duplicates from a list with nested lists.
@@ -29,10 +29,10 @@ rmAllDup([], [], _).
 rmAllDup([A|L], [X|R], S) :-
 	\+ atomic(A),
 	!,
-	append([], S, T),
-	rmAllDup(A, X, T),
+	rmAllDup(A, X, S),
 	flatten(X, Y),
-	rmAllDup(L, R, [S|Y]).
+	append(S, Y, V),
+	rmAllDup(L, R, V).
 rmAllDup([A|L], [A|R], S) :-
 	\+ member(A, S), !,
 	rmAllDup(L, R, [A|S]).
