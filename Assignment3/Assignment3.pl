@@ -2,8 +2,6 @@
 % not in S2. 
 % Base case: If both lists is empty, return empty list.
 setDifference([], [], []).
-% Base case: If first list is empty, return second list.
-setDifference([], S, S).
 % If the atom we are at exists in the second list, ignore it.
 setDifference([A|S1], S2, S3) :-
 	member(A, S2),
