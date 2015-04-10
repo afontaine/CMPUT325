@@ -1,3 +1,4 @@
+:- use_module(library(clpfd)).
 % Data for testing purposes.
 insert_data :-
 	assert(c325(fall_2014,aperf,15,15,15,15,79,99)),
@@ -43,7 +44,7 @@ query2name(S, N) :-
 query3(S, N, as1, X) :-
 	c325(S, N, A1, A2, A3, A4, M, F),
 	retract(c325(S, N, A1, A2, A3, A4, M, F)),
-	assert(c325(S, N, X, A2, A3,A4, M, F)).
+	assert(c325(S, N, X, A2, A3, A4, M, F)).
 query3(S, N, as2, X) :-
 	c325(S, N, A1, A2, A3, A4, M, F),
 	retract(c325(S, N, A1, A2, A3, A4, M, F)),
@@ -66,4 +67,5 @@ query3(S, N, final, X) :-
 	assert(c325(S, N, A1, A2, A3, A4, M, X)).
 query3(_, _, _, _) :-
 	print('record not found').
+
 
