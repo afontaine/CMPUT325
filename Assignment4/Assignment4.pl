@@ -29,3 +29,13 @@ query1(S, N, T) :-
 	setup(S, final, MF, WF),
 	c325(S, N, R1, R2, R3, R4, RM, RF),
 	T is R1 / M1 * W1 + R2 / M2 * W2 + R3 / M3 * W3 + R4 / M4 * W4 + RM / MM * WM + RF / MF * WF.
+
+query2(S, L) :-
+	findall(N, query2name(S, N), L).
+
+query2name(S, N) :-
+	setup(S, midterm, MM, _),
+	setup(S, final, MF, _),
+	c325(S, N, _, _, _, _, M, F),
+	M / MM < F / MF.
+
