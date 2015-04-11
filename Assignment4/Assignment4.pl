@@ -1,4 +1,5 @@
 :- use_module(library(clpfd)).
+:- use_module(library(lists)).
 % Data for testing purposes.
 insert_data :-
 	assert(c325(fall_2014,aperf,15,15,15,15,79,99)),
@@ -68,4 +69,70 @@ query3(S, N, final, X) :-
 query3(_, _, _, _) :-
 	print('record not found').
 
+schedule(TimeLst, RmLst) :-
+	TimeLst = [A, B, C, D, E, F, G, H, I, J, K],
+	MapLst = [a, b, c, d, e, f, g, h, i, j, k],
+	findall(R1, room(R1), R),
+	length(R, RoomLen),
+	RoomNum is RoomLen + 10,
+	length(TimeLst, Len),
+	length(RmLst, Len),
+	append(TimeLst, RmLst, W),
+	findall(L, notAtSameTime(L), C1),
+	findall([Q1, Q2], before(Q1, Q2), C2),
+	findall([Session, Time, Rm], at(Session, Time, Rm), C3),
+	TimeLst ins 1..4,
+	RmLst ins 10..RoomNum,
+	constr1(TimeLst, C1, MapLst),
+	constr2(TimeLst, C2, MapLst),
+	constr3(TimeLst, RmLst, C3, MapLst),
+	exclusive(TimeLst, RmLst),
+	labeling([], W).
 
+head([H|T], H).
+constr1(_, [], _).
+constr1(TimeLst, [[]|C], MapLst) :-
+	constr1(TimeLst, C, MapLst).
+constr1(TimeLst, [[C|C1]|C0], MapLst) :-
+	nth0(X, MapLst, C),
+	nth0(X, TimeLst, V),
+	head(C1, H),
+	nth0(Y, MapList, H),
+	nth0(Y, TimeLst, V1),
+	V #\= V1,
+	constr1(TimeLst, [C1|C0], MapLst).
+
+constr2(_, [], _).
+constr2(TimeLst, [[Q1, Q2] | C], MapLst) :-
+	nth0(X, MapLst, Q1),
+	nth0(X, TimeLst, V),
+	nth0(Y, MapLst, Q2),
+	nth0(Y, MapLst, V1),
+	V #> V2,
+	constr2(TimeLst, C, MapLst).
+
+constr3(_, _, [], _).
+constr3(TimeLst, RmLst, [[S, T, R]|C], MapLst) :-
+	nth0(X, MapList, S),
+	nth0(X, TimeLst, T1),
+	nth0(X, RmLst, R1),
+	T1 #= T,
+	R1 #= R,
+	constr3(TimeLst, RmLst, C, MapLst).
+
+subsetSum(L, R) :-
+	length(L, Len),
+	length(V, Len),
+	V ins 0..1,
+	labeling([], V),
+	mapList(L, V, R),
+	sum_list(R, X),
+	length(R, T),
+	T #\=0,
+	X #= 0.
+
+mapList(_, [], []).
+mapList([H|L], [1|T], [H|R]) :-
+	mapList(L, T, R).
+mapList([_|L], [0|T], R) :-
+	mapList(L, T, R).
