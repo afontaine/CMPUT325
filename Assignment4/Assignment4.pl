@@ -1,27 +1,12 @@
 :- use_module(library(clpfd)).
 :- use_module(library(lists)).
 % Data for testing purposes.
-insert_data :-
-	assert(c325(fall_2014,aperf,15,15,15,15,79,99)),
-    assert(c325(fall_2014,john,14,13,15,10,76,87)),
-    assert(c325(fall_2014,lily, 9,12,14,14,76,92)),
-    assert(c325(fall_2014,peter,8,13,12,9,56,58)),
-    assert(c325(fall_2014,ann,14,15,15,14,76,95)),
-    assert(c325(fall_2014,ken,11,12,13,14,54,87)),
-    assert(c325(fall_2014,kris,13,10,9,7,60,80)),
-    assert(c325(fall_2014,audrey,10,13,15,11,70,80)),
-    assert(c325(fall_2014,randy,14,13,11,9,67,76)),
-    assert(c325(fall_2014,david,15,15,11,12,66,76)),
-    assert(c325(fall_2014,sam,10,13,10,15,65,67)),
-    assert(c325(fall_2014,kim,14,13,12,11,68,78)),
-    assert(c325(fall_2014,perf,15,15,15,15,80,100)),
-    assert(c325(winter_2014,aperf,15,15,15,15,80,99)),
-    assert(setup(fall_2014,as1,15,0.1)),
-    assert(setup(fall_2014,as2,15,0.1)),
-    assert(setup(fall_2014,as3,15,0.1)),
-    assert(setup(fall_2014,as4,15,0.1)),
-    assert(setup(fall_2014,midterm,80,0.25)),
-    assert(setup(fall_2014,final,100,0.35)).
+room(r1).
+room(r2).
+room(r3).
+notAtSameTime([b, i, h, g]).
+before(i, j).
+at(a, _, r2).
 
 query1(S, N, T) :-
 	setup(S, as1, M1, W1),
@@ -70,11 +55,11 @@ query3(_, _, _, _) :-
 	print('record not found').
 
 schedule(TimeLst, RmLst) :-
-	TimeLst = [A, B, C, D, E, F, G, H, I, J, K],
 	MapLst = [a, b, c, d, e, f, g, h, i, j, k],
 	findall(R1, room(R1), R),
 	length(R, RoomLen),
-	RoomNum is RoomLen + 10,
+	RoomNum is RoomLen + 9,
+	length(MapLst, Len),
 	length(TimeLst, Len),
 	length(RmLst, Len),
 	append(TimeLst, RmLst, W),
@@ -83,42 +68,68 @@ schedule(TimeLst, RmLst) :-
 	findall([Session, Time, Rm], at(Session, Time, Rm), C3),
 	TimeLst ins 1..4,
 	RmLst ins 10..RoomNum,
+	labeling([], TimeLst),
+	labeling([], RmLst),
 	constr1(TimeLst, C1, MapLst),
 	constr2(TimeLst, C2, MapLst),
 	constr3(TimeLst, RmLst, C3, MapLst),
-	exclusive(TimeLst, RmLst),
+	exclude(TimeLst, RmLst),
 	labeling([], W).
 
-head([H|T], H).
 constr1(_, [], _).
-constr1(TimeLst, [[]|C], MapLst) :-
-	constr1(TimeLst, C, MapLst).
-constr1(TimeLst, [[C|C1]|C0], MapLst) :-
-	nth0(X, MapLst, C),
-	nth0(X, TimeLst, V),
-	head(C1, H),
-	nth0(Y, MapList, H),
-	nth0(Y, TimeLst, V1),
-	V #\= V1,
-	constr1(TimeLst, [C1|C0], MapLst).
+constr1(TimeLst, [C|C0], MapLst) :-
+	mapTimes(C, TimeLst, MapLst, R),
+	all_distinct(R),
+	constr1(TimeLst, C0, MapLst).
+
+mapTimes([], _, _, []).
+mapTimes([D|Dom], TimeLst, MapLst, [X|R]) :-
+	nth0(V, MapLst, D),
+	nth0(V, TimeList, X),
+	mapTimes(Dom, TimeLst, MapLst, R).
+
+mapRooms([], []).
+mapRooms([D|Dom], [X|R]) :-
+	findall(R1, room(R1), R2),
+	nth0(V, R2, D),
+	X is V + 10,
+	mapRooms(Dom, R).
+
+mapSessToRoom([], _, _, []).
+mapSessToRoom([S|Sess], RmLst, MapLst, [X|R]) :-
+	nth0(V, MapLst, D),
+	nth0(V, RmLst, X),
+	mapSessToRoom(Sess, RmLst, MapLst, R).
 
 constr2(_, [], _).
 constr2(TimeLst, [[Q1, Q2] | C], MapLst) :-
-	nth0(X, MapLst, Q1),
-	nth0(X, TimeLst, V),
-	nth0(Y, MapLst, Q2),
-	nth0(Y, MapLst, V1),
+	mapTimes([Q1, Q2], TimeLst, MapLst, [V, V2]),
 	V #> V2,
 	constr2(TimeLst, C, MapLst).
 
 constr3(_, _, [], _).
 constr3(TimeLst, RmLst, [[S, T, R]|C], MapLst) :-
-	nth0(X, MapList, S),
-	nth0(X, TimeLst, T1),
-	nth0(X, RmLst, R1),
+	mapTimes([S], TimeLst, MapLst, [T1]),
+	mapRooms([R], [R1]),
+	mapSessToRoom([S], RmLst, MapLst, [R2]),
 	T1 #= T,
-	R1 #= R,
+	R2 #= R1,
 	constr3(TimeLst, RmLst, C, MapLst).
+
+
+member([T, R], [[T1, R1]|L]) :-
+	T #= T1 #/\ R #= R1.
+member([T, R], [_|L]) :-
+	member([T, R], L).
+
+exclude(TimeLst, RoomLst) :-
+	map(TimeLst, RoomLst, M),
+	noPairs(M).
+
+noPairs([]).
+noPairs([P | M]) :-
+	\+ member(P, M),
+	noPairs(M).
 
 subsetSum(L, R) :-
 	length(L, Len),
@@ -136,3 +147,7 @@ mapList([H|L], [1|T], [H|R]) :-
 	mapList(L, T, R).
 mapList([_|L], [0|T], R) :-
 	mapList(L, T, R).
+
+map([],_,[]).
+map([H1|X], [H2|Y], [[H1,H2]|M]) :-
+	map(X, Y, M).
